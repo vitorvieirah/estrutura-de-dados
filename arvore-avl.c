@@ -45,22 +45,80 @@ int fatorBalanceamento(NoArv *no){
 	}
 }
 
-NoArv* inserirNaArvore(NoArv *raiz, int valor) {
-    if (raiz == NULL) {
-        NoArv *novo = (NoArv*) malloc(sizeof(NoArv));
-        novo->valor = valor;
-        novo->direita = NULL;
-        novo->esquerda = NULL;
-        return novo;
-    } else {
-        if (valor < raiz->valor) {
-            raiz->esquerda = inserirNaArvore(raiz->esquerda, valor);
-        } else {
-            raiz->direita = inserirNaArvore(raiz->direita, valor);
-        }
-        return raiz; 
-    }
+NoArv* rotacaoEsquerda(NoArv *r){
+	NoArv *y, *f;
+	
+	y = r->direita;
+	f = y->esquerda;
+	
+	y->esquerda = r;
+	r->direita = f;
+	
+	r->altura = maior(alturaNo(r->esquerda), alturaNo(r->direita)) + 1);
+	y->altura = maior(alturaNo(y->esquerda), alturaNo(y->direita)) + 1);
+	
+	return y;
 }
+
+NoArv* rotacaoDireita(NoArv *r){
+	NoArv *y, *f;
+	
+	y = r->esquerda;
+	f = y->direita;
+	
+	y->direita = r;
+	r->esquerda = f;
+	
+	r->altura = maior(alturaNo(r->esquerda, alturaNo(r->direita)) + 1);
+	y->altura = maior(alturaNo(y->esquerda, alturaNo(y->direita)) + 1);
+	
+	return y;
+}
+
+NoArv* rotacaoDireitaEsquerda(NoArv *r){
+	r->direita = rotacaoDireita(r->direita);
+	return rotacaoEsquerda(r);	
+}
+
+NoArv* rotacaoEsquerdaDireita(NoArv *r){
+	r->esquerda = rotacaoEsquerda(r->esquerda);
+	return rotacaoDireita(r);
+}
+
+NoArv* balancear(NoArv *raiz){
+	int fb = fatorBalanceamento(raiz);
+	
+	if(fb < -1 && fatorBalanceamento(raiz->direita) <= 0)
+		raiz = rotacaoEsquerda(raiz);
+	else if(fb > 1 && fatorBalanceamento(raiz->esquerda) >= 0)
+		raiz = rotacaoDireita(raiz);
+	else if(fb > 1 && fatorBalanceamento(raiz->esquerda) < 0)
+		raiz = rotacaoEsquerdaDireita(raiz);
+	else if(fb < -1 && fatorBalanceamento(raiz->direita) > 0)
+		raiz = rotacaoDireitaEsquerda(raiz);
+	
+	return raiz;
+}
+
+NoArv* inserirNaArvore(NoArv *raiz, int valor) {
+    if(raiz == NULL)
+    	return novoNoArv(valor);
+    else{
+    	if(valor < raiz->valor)
+    		raiz->esquerda = inserirNaArvore(raiz->esquerda, valor);
+		else if(valor > raiz->valor)
+			raiz->direita = inserirNaArvore(raiz->direita, valor);
+		else
+			printf("\nInsercao não realizada!\nO elemento %d ja existe!\n", valor);
+	}
+	
+	raiz->altura = maior(alturaNo(raiz->esquerda), alturaNo(raiz->direita)) + 1;
+	
+	raiz = balancear(raiz);
+	
+	return raiz;
+}
+
 
 void buscarNaArvore(NoArv *raiz, int valor, int cont) {
     int contI = cont;
@@ -182,9 +240,14 @@ NoArv* remover(NoArv *raiz, int chave){
 				raiz->esquerda = remover(raiz->esquerda, chave);
 			else
 				raiz->direita = remover(raiz->direita, chave);
-			
-			return raiz;
-		}		
+		}
+		
+		raiz->altura = maior(alturaNo(raiz->esquerda), alturaNo(raiz->direita)) + 1;
+		
+		raiz = balancear(raiz);
+		
+		return raiz;
+				
 	}
 }
 
