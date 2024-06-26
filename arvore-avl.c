@@ -1,7 +1,6 @@
-//3. Um programador precisa desenvolver uma estrutura de dados que permita a busca
-//eficiente de dados. Ele escolhe utilizar uma árvore binária de busca.
-//Defina uma árvore binária de busca e implemente a função em C que insere um novo
-//elemento nessa árvore.
+#include<stdio.h>
+#include<stdlib.h>
+#include<locale.h>
 
 #include<stdio.h>
 #include<stdlib.h>
@@ -9,10 +8,42 @@
 
 
 typedef struct noArv{
-	int valor;
+	int valor, altura;
 	struct noArv *esquerda, *direita;
 }NoArv;
 
+NoArv* novoNoArv(int x){
+	NoArv *novo = (NoArv*)malloc(sizeof(NoArv));
+	
+	if(novo){
+		novo->valor = x;
+		novo->esquerda = NULL;
+		novo->direita = NULL;
+		novo->altura = 0;
+	}else
+		printf("\nErro ao alocar memória.\n");
+	
+	return novo;
+}
+
+int maior(int a, int b){
+	return (a > b)?a:b;
+}
+
+int alturaNo(NoArv *no){
+	if(no == NULL)
+		return -1;
+	else
+		return no->altura;
+}
+
+int fatorBalanceamento(NoArv *no){
+	if(no){
+		return (alturaNo(no->esquerda) - alturaNo(no->direita));
+	}else{
+		return 0;
+	}
+}
 
 NoArv* inserirNaArvore(NoArv *raiz, int valor) {
     if (raiz == NULL) {
